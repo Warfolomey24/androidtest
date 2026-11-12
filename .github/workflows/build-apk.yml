@@ -30,8 +30,14 @@ jobs:
       - name: Reuse debug signing key
         uses: actions/cache@v4
         with:
-          path: ~/.android/debug.keystore
-          key: merlin-debug-signing-v1
+          path: .ci/debug.keystore
+          key: umnaya-tochka-debug-signing-v2
+      - name: Prepare explicit debug signing key
+        run: |
+          mkdir -p .ci
+          if [ ! -f .ci/debug.keystore ]; then
+            keytool -genkeypair -keystore .ci/debug.keystore -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname 'CN=Android Debug,O=Android,C=US'
+          fi
       - name: Compile APK
         run: gradle --no-daemon :app:assembleDebug :monitor:assembleDebug :phone:assembleDebug :sms:assembleDebug :camera:assembleDebug
       - name: Save APK

@@ -1,5 +1,13 @@
 plugins { id("com.android.application"); id("org.jetbrains.kotlin.android") }
 android {
+    signingConfigs {
+        getByName("debug") {
+            storeFile = rootProject.file(".ci/debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
     namespace = "dev.merlin.monitor"
     compileSdk = 35
     defaultConfig { applicationId = "dev.merlin.monitor"; minSdk = 29; targetSdk = 32; versionCode = 2; versionName = "0.2.0" }

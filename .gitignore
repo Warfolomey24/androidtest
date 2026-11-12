@@ -7,3 +7,5 @@ build/
 *.apk
 *.aab
 .DS_Store
+
+.ci/debug.keystore
