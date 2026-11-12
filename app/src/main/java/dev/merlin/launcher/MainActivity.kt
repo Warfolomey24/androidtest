@@ -59,6 +59,7 @@ class MainActivity : Activity() {
     private var drawerVisible = false
     private var touchDownY = 0f
     private var touchDownX = 0f
+    private var gesturesEnabled = true
 
     private lateinit var home: LinearLayout
     private lateinit var drawer: LinearLayout
@@ -79,6 +80,7 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        gesturesEnabled = preferences.getBoolean("gestures", true)
         window.statusBarColor = background
         window.navigationBarColor = background
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
@@ -126,8 +128,16 @@ class MainActivity : Activity() {
             MotionEvent.ACTION_UP -> {
                 val deltaY = ev.y - touchDownY
                 val deltaX = ev.x - touchDownX
-                if (!drawerVisible && deltaY < -dp(100) && kotlin.math.abs(deltaY) > kotlin.math.abs(deltaX) * 1.3f) {
+                if (gesturesEnabled && !drawerVisible && deltaY < -dp(100) && kotlin.math.abs(deltaY) > kotlin.math.abs(deltaX) * 1.3f) {
                     showDrawer()
+                    return true
+                }
+                if (gesturesEnabled && drawerVisible && touchDownX < dp(28) && deltaX > dp(90) && kotlin.math.abs(deltaX) > kotlin.math.abs(deltaY) * 1.3f) {
+                    hideDrawer()
+                    return true
+                }
+                if (gesturesEnabled && !drawerVisible && deltaY > dp(100) && kotlin.math.abs(deltaY) > kotlin.math.abs(deltaX) * 1.3f) {
+                    runCatching { startActivity(Intent(Settings.ACTION_SETTINGS)) }
                     return true
                 }
             }
@@ -155,7 +165,9 @@ class MainActivity : Activity() {
 
     private fun constructHome() {
         home.addView(label("MERLIN  /  LITE", 12f, accent, true).apply { letterSpacing = 0.25f })
-        home.addView(spacer(38))
+        home.addView(spacer(16))
+        home.addView(actionButton("Все приложения      ↑", true) { showDrawer() }, LinearLayout.LayoutParams(-1, dp(58)))
+        home.addView(spacer(24))
         clock = label("--:--", 64f, primary, false).apply {
             typeface = Typeface.create("sans-serif-light", Typeface.NORMAL)
         }
@@ -180,10 +192,12 @@ class MainActivity : Activity() {
         home.addView(favoritesView, LinearLayout.LayoutParams(-1, dp(110)))
         home.addView(spacer(18))
 
-        val allButton = actionButton("Все приложения      ↑", true) { showDrawer() }
-        home.addView(allButton, LinearLayout.LayoutParams(-1, dp(58)))
+        home.addView(actionButton("Диспетчер приложений", false) {
+            val intent = packageManager.getLaunchIntentForPackage("dev.merlin.monitor")
+            if (intent != null) startActivity(intent) else Toast.makeText(this, "Установите Merlin Monitor", Toast.LENGTH_SHORT).show()
+        }, LinearLayout.LayoutParams(-1, dp(52)))
         home.addView(spacer(10))
-        home.addView(label("Проведи вверх · удерживай значок для настройки", 11f, secondary).apply {
+        home.addView(label("↑ приложения · ↓ настройки · удержание: избранное", 11f, secondary).apply {
             gravity = Gravity.CENTER
         })
     }
@@ -352,15 +366,23 @@ class MainActivity : Activity() {
     private fun showMenu() {
         AlertDialog.Builder(this)
             .setTitle("Merlin Launcher Lite")
-            .setItems(arrayOf("Сделать основным лаунчером", "Показать скрытые приложения", "Обновить список", "О программе")) { _, index ->
+            .setItems(arrayOf("Сделать основным лаунчером", "Показать скрытые приложения", "Обновить список", "О программе", "Жесты внутри лаунчера", "Системная навигация")) { _, index ->
                 when (index) {
                     0 -> requestHomeRole()
                     1 -> showHiddenApps()
                     2 -> loadApps()
                     3 -> AlertDialog.Builder(this)
-                        .setTitle("Merlin Launcher Lite 0.1")
+                        .setTitle("Merlin Launcher Lite 0.2")
                         .setMessage("Быстрый лаунчер без рекламы, сети и фоновых служб. MIUI Home остаётся установленным для безопасного возврата.")
                         .setPositiveButton("ОК", null).show()
+                    4 -> AlertDialog.Builder(this).setTitle("Жесты лаунчера")
+                        .setMultiChoiceItems(arrayOf("Включить: вверх — приложения; вниз — настройки; от левого края — назад"), booleanArrayOf(gesturesEnabled)) { _, _, checked ->
+                            gesturesEnabled = checked
+                            preferences.edit().putBoolean("gestures", checked).apply()
+                        }.setPositiveButton("Готово", null).show()
+                    5 -> runCatching {
+                        startActivity(Intent().setComponent(ComponentName("com.android.settings", "com.android.settings.Settings\$NavigationBarSettingsActivity")))
+                    }.onFailure { startActivity(Intent(Settings.ACTION_SETTINGS)) }
                 }
             }.show()
     }

@@ -28,10 +28,15 @@ jobs:
         with:
           gradle-version: '8.9'
       - name: Compile APK
-        run: gradle --no-daemon :app:assembleDebug
+        run: gradle --no-daemon :app:assembleDebug :monitor:assembleDebug :phone:assembleDebug :sms:assembleDebug :camera:assembleDebug
       - name: Save APK
         uses: actions/upload-artifact@v4
         with:
           name: Merlin-Launcher-Lite-debug
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            monitor/build/outputs/apk/debug/monitor-debug.apk
+            phone/build/outputs/apk/debug/phone-debug.apk
+            sms/build/outputs/apk/debug/sms-debug.apk
+            camera/build/outputs/apk/debug/camera-debug.apk
           if-no-files-found: error

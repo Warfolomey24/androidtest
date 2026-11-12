@@ -14,3 +14,5 @@ dependencyResolutionManagement {
 }
 rootProject.name = "MerlinLauncherLite"
 include(":app")
+
+include(":monitor", ":phone", ":sms", ":camera")
