@@ -25,8 +25,8 @@ class GestureService : AccessibilityService() {
     }
     private fun addHandle(gravity: Int, width: Int, height: Int, bottom: Boolean) {
         val view = View(this).apply {
-            setBackgroundColor(Color.argb(35,155,255,213))
-            contentDescription = if(bottom) "Merlin: вверх — Домой, вверх с удержанием — Недавние" else "Merlin: от края — Назад"
+            setBackgroundColor(Color.argb(28,255,255,255))
+            contentDescription = if(bottom) "Умная Точка: вверх — Домой, вверх с удержанием — Недавние" else "Умная Точка: от края — Назад"
         }
         var x = 0f; var y = 0f; var start = 0L
         view.setOnTouchListener { _, event ->

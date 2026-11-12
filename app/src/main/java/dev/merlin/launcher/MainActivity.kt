@@ -6,6 +6,8 @@ import android.app.role.RoleManager
 import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
@@ -44,11 +46,11 @@ import java.util.concurrent.Executors
 
 /** A compact home replacement with no network, tracking, widgets, or background services. */
 class MainActivity : Activity() {
-    private val background = Color.rgb(11, 17, 24)
-    private val surface = Color.rgb(27, 37, 47)
-    private val primary = Color.rgb(246, 248, 249)
-    private val secondary = Color.rgb(153, 166, 176)
-    private val accent = Color.rgb(155, 255, 213)
+    private val background = Color.BLACK
+    private val surface = Color.rgb(24, 24, 24)
+    private val primary = Color.WHITE
+    private val secondary = Color.rgb(165, 165, 165)
+    private val accent = Color.WHITE
 
     private val preferences by lazy { getSharedPreferences("merlin", MODE_PRIVATE) }
     private val worker = Executors.newSingleThreadExecutor()
@@ -164,10 +166,23 @@ class MainActivity : Activity() {
     }
 
     private fun constructHome() {
-        home.addView(label("MERLIN  /  LITE", 12f, accent, true).apply { letterSpacing = 0.25f })
-        home.addView(spacer(16))
-        home.addView(actionButton("Все приложения      ↑", true) { showDrawer() }, LinearLayout.LayoutParams(-1, dp(58)))
-        home.addView(spacer(24))
+        home.addView(ImageView(this).apply {
+            setImageBitmap(android.graphics.BitmapFactory.decodeResource(resources, R.drawable.brand_logo, android.graphics.BitmapFactory.Options().apply { inSampleSize = 2 }))
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            contentDescription = "Умная Точка"
+        }, LinearLayout.LayoutParams(-1, dp(105)))
+        home.addView(spacer(18))
+        val shortcuts = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_HORIZONTAL
+        }
+        shortcuts.addView(homeShortcut("Все приложения", R.drawable.ic_apps) { showDrawer() }, LinearLayout.LayoutParams(0, dp(100), 1f))
+        shortcuts.addView(homeShortcut("Диспетчер", R.drawable.ic_monitor) {
+            val intent = packageManager.getLaunchIntentForPackage("dev.merlin.monitor")
+            if (intent != null) startActivity(intent) else Toast.makeText(this, "Диспетчер не установлен", Toast.LENGTH_SHORT).show()
+        }, LinearLayout.LayoutParams(0, dp(100), 1f))
+        home.addView(shortcuts)
+        home.addView(spacer(22))
         clock = label("--:--", 64f, primary, false).apply {
             typeface = Typeface.create("sans-serif-light", Typeface.NORMAL)
         }
@@ -192,15 +207,33 @@ class MainActivity : Activity() {
         home.addView(favoritesView, LinearLayout.LayoutParams(-1, dp(110)))
         home.addView(spacer(18))
 
-        home.addView(actionButton("Диспетчер приложений", false) {
-            val intent = packageManager.getLaunchIntentForPackage("dev.merlin.monitor")
-            if (intent != null) startActivity(intent) else Toast.makeText(this, "Установите Merlin Monitor", Toast.LENGTH_SHORT).show()
-        }, LinearLayout.LayoutParams(-1, dp(52)))
-        home.addView(spacer(10))
         home.addView(label("↑ приложения · ↓ настройки · удержание: избранное", 11f, secondary).apply {
             gravity = Gravity.CENTER
         })
     }
+
+    private fun homeShortcut(title: String, icon: Int, action: () -> Unit): LinearLayout =
+        LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
+            val image = ImageView(this@MainActivity).apply {
+                setImageResource(icon)
+                scaleType = ImageView.ScaleType.CENTER_INSIDE
+                setPadding(dp(15), dp(15), dp(15), dp(15))
+                background = rounded(surface, 22f)
+            }
+            addView(image, LinearLayout.LayoutParams(dp(64), dp(64)))
+            addView(label(title, 12f, primary).apply {
+                gravity = Gravity.CENTER
+                setPadding(0, dp(9), 0, 0)
+            }, LinearLayout.LayoutParams(-1, -2))
+            contentDescription = title
+            isFocusable = true
+            isClickable = true
+            setOnClickListener { action() }
+            foreground = android.graphics.drawable.RippleDrawable(
+                android.content.res.ColorStateList.valueOf(Color.argb(40,255,255,255)), null, rounded(Color.WHITE, 22f))
+        }
 
     private fun constructDrawer() {
         val header = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
@@ -365,22 +398,22 @@ class MainActivity : Activity() {
 
     private fun showMenu() {
         AlertDialog.Builder(this)
-            .setTitle("Merlin Launcher Lite")
+            .setTitle("Умная Точка")
             .setItems(arrayOf("Сделать основным лаунчером", "Показать скрытые приложения", "Обновить список", "О программе", "Жесты внутри лаунчера", "Системная навигация")) { _, index ->
                 when (index) {
                     0 -> requestHomeRole()
                     1 -> showHiddenApps()
                     2 -> loadApps()
                     3 -> AlertDialog.Builder(this)
-                        .setTitle("Merlin Launcher Lite 0.2")
-                        .setMessage("Быстрый лаунчер без рекламы, сети и фоновых служб. MIUI Home остаётся установленным для безопасного возврата.")
+                        .setTitle("Умная Точка 0.3")
+                        .setMessage("Рабочий стол без рекламы и доступа к интернету. Системные жесты включаются отдельно. MIUI Home остаётся установленным для безопасного возврата.")
                         .setPositiveButton("ОК", null).show()
                     4 -> AlertDialog.Builder(this).setTitle("Жесты лаунчера")
                         .setMultiChoiceItems(arrayOf("Включить: вверх — приложения; вниз — настройки; от левого края — назад"), booleanArrayOf(gesturesEnabled)) { _, _, checked ->
                             gesturesEnabled = checked
                             preferences.edit().putBoolean("gestures", checked).apply()
                         }.setPositiveButton("Готово", null).show()
-                    5 -> AlertDialog.Builder(this).setTitle("Системные жесты Merlin").setMessage("Включите службу «Жесты Merlin»: от бокового края — Назад, снизу вверх — Домой, вверх с удержанием — Недавние. Служба не читает содержимое экрана и не отправляет данные. Отключить её можно в специальных возможностях.").setNegativeButton("Отмена", null).setPositiveButton("Открыть настройки") { _, _ -> startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }.show()
+                    5 -> AlertDialog.Builder(this).setTitle("Системные жесты Умной Точки").setMessage("Включите службу «Жесты Умной Точки»: от бокового края — Назад, снизу вверх — Домой, вверх с удержанием — Недавние. Служба не читает содержимое экрана и не отправляет данные. Отключить её можно в специальных возможностях.").setNegativeButton("Отмена", null).setPositiveButton("Открыть настройки") { _, _ -> startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }.show()
                 }
             }.show()
     }
@@ -516,6 +549,7 @@ class MainActivity : Activity() {
                     ellipsize = android.text.TextUtils.TruncateAt.END
                 }
                 cell.addView(appLabel, LinearLayout.LayoutParams(-1, dp(34)))
+                iconView.colorFilter = ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(0f) })
                 holder = CellHolder(iconView, appLabel)
                 cell.tag = holder
             }

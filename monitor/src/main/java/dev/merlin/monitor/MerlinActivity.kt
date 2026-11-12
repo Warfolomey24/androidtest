@@ -11,10 +11,10 @@ import android.widget.*
 
 open class MerlinActivity : Activity() {
     protected lateinit var page: LinearLayout
-    protected val ink = Color.rgb(246,248,249)
-    protected val muted = Color.rgb(153,166,176)
-    protected val mint = Color.rgb(155,255,213)
-    protected val dark = Color.rgb(11,17,24)
+    protected val ink = Color.WHITE
+    protected val muted = Color.rgb(165,165,165)
+    protected val mint = Color.WHITE
+    protected val dark = Color.BLACK
     protected fun dp(n: Int) = (n * resources.displayMetrics.density + .5f).toInt()
     protected fun screen(title: String, subtitle: String = "") {
         window.statusBarColor = dark
@@ -23,7 +23,7 @@ open class MerlinActivity : Activity() {
         page = LinearLayout(this).apply { orientation = 1; setPadding(dp(22), dp(24), dp(22), dp(24)) }
         scroll.addView(page)
         setContentView(scroll)
-        text("MERLIN / LITE", 12, mint)
+        text("УМНАЯ ТОЧКА", 12, mint)
         text(title, 30)
         if (subtitle.isNotEmpty()) text(subtitle, 14, muted)
     }
