@@ -27,6 +27,11 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
+      - name: Reuse debug signing key
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: merlin-debug-signing-v1
       - name: Compile APK
         run: gradle --no-daemon :app:assembleDebug :monitor:assembleDebug :phone:assembleDebug :sms:assembleDebug :camera:assembleDebug
       - name: Save APK
