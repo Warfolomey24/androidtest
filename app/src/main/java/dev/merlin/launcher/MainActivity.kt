@@ -136,7 +136,7 @@ class MainActivity : Activity() {
     }
 
     private fun constructScreen() {
-        val root = FrameLayout(this).apply { setBackgroundColor(background) }
+        val root = FrameLayout(this).apply { setBackgroundColor(this@MainActivity.background) }
         home = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(24), dp(22), dp(24), dp(20))
@@ -212,7 +212,7 @@ class MainActivity : Activity() {
             setHintTextColor(secondary)
             setTextColor(primary)
             textSize = 16f
-            singleLine = true
+            setSingleLine(true)
             setPadding(dp(19), 0, dp(17), 0)
             setBackgroundDrawable(rounded(surface, 17f))
             inputType = android.text.InputType.TYPE_CLASS_TEXT
