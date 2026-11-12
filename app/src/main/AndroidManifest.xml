@@ -17,6 +17,11 @@
         android:roundIcon="@drawable/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/Theme.Merlin">
+        <service android:name=".GestureService" android:label="@string/gesture_service_name"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" android:exported="true">
+            <intent-filter><action android:name="android.accessibilityservice.AccessibilityService" /></intent-filter>
+            <meta-data android:name="android.accessibilityservice" android:resource="@xml/gesture_service" />
+        </service>
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -380,9 +380,7 @@ class MainActivity : Activity() {
                             gesturesEnabled = checked
                             preferences.edit().putBoolean("gestures", checked).apply()
                         }.setPositiveButton("Готово", null).show()
-                    5 -> runCatching {
-                        startActivity(Intent().setComponent(ComponentName("com.android.settings", "com.android.settings.Settings\$NavigationBarSettingsActivity")))
-                    }.onFailure { startActivity(Intent(Settings.ACTION_SETTINGS)) }
+                    5 -> AlertDialog.Builder(this).setTitle("Системные жесты Merlin").setMessage("Включите службу «Жесты Merlin»: от бокового края — Назад, снизу вверх — Домой, вверх с удержанием — Недавние. Служба не читает содержимое экрана и не отправляет данные. Отключить её можно в специальных возможностях.").setNegativeButton("Отмена", null).setPositiveButton("Открыть настройки") { _, _ -> startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }.show()
                 }
             }.show()
     }

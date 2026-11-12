@@ -1,0 +1,4 @@
+<resources>
+    <string name="gesture_service_name">Жесты Merlin</string>
+    <string name="gesture_description">Только навигация: от боковых краёв — Назад; снизу вверх — Домой; вверх с удержанием — Недавние. Не читает содержимое экрана и не отправляет данные. Отключение службы убирает зоны жестов.</string>
+</resources>

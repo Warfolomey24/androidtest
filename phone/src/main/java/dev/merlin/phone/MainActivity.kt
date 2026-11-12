@@ -72,7 +72,7 @@ open class MainActivity : MerlinActivity() {
                 if(values.isEmpty()) {message("Контактов нет"); return@runOnUiThread}
                 val search=EditText(this).apply { hint="Поиск имени или номера" }
                 val list=ListView(this)
-                var shown=values
+                var shown: List<Pair<String,String>> = values
                 fun filter(){ shown=values.filter { (it.first+it.second).contains(search.text.toString(),true) }; list.adapter=ArrayAdapter(this,android.R.layout.simple_list_item_1,shown.map { "${it.first}\n${it.second}" }) }
                 search.addTextChangedListener(object:android.text.TextWatcher {
                     override fun beforeTextChanged(s:CharSequence?,st:Int,c:Int,a:Int){}

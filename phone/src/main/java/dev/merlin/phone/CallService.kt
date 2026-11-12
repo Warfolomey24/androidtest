@@ -75,7 +75,7 @@ class CallActivity : MerlinActivity() {
             }.show()
         }
         if(call.state==Call.STATE_SELECT_PHONE_ACCOUNT){
-            call.details.intentExtras?.getParcelableArrayList<PhoneAccountHandle>(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLES)?.forEachIndexed{i,handle->
+            call.details.intentExtras?.getParcelableArrayList<PhoneAccountHandle>("android.telecom.extra.PHONE_ACCOUNT_HANDLES")?.forEachIndexed{i,handle->
                 button("Использовать SIM ${i+1}"){call.phoneAccountSelected(handle,false)}
             }
         }
