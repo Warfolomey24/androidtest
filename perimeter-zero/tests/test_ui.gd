@@ -23,6 +23,11 @@ func _process(_delta: float) -> bool:
         frames += 1
     else:
         expect(ui.sidebar.get_child_count() > 0, "test_ui.gd: assertion 2")
+        # Regression: the cycle label must not wrap into a tall vertical column.
+        expect(ui.time_status.autowrap_mode == TextServer.AUTOWRAP_OFF, "cycle HUD must be one line")
+        expect(ui.time_status.custom_minimum_size.x >= 200.0, "cycle HUD needs reserved width")
+        expect(ui.header_status.autowrap_mode == TextServer.AUTOWRAP_OFF, "status HUD must be one line")
+        expect(ui.resource_status.autowrap_mode == TextServer.AUTOWRAP_OFF, "resources must not stretch HUD")
         ui._on_sidebar_touch_started()
         expect(ui.sidebar_touch_scrolling,"touch scroll enters protected mode")
         var first_control: Node = ui.sidebar.get_child(0)

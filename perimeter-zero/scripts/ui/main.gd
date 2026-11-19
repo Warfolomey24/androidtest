@@ -113,23 +113,43 @@ func _make_shell() -> void:
     root.add_theme_constant_override("separation",6)
     add_child(root)
 
+    # Keep the HUD a single compact row. The old auto-wrapping cycle label
+    # could become one character wide and force the entire header to ~400px.
     var head := HBoxContainer.new()
-    head.custom_minimum_size = Vector2(0,75)
-    head.add_theme_constant_override("separation",26)
+    head.custom_minimum_size = Vector2(0,76)
+    head.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+    head.add_theme_constant_override("separation",12)
     root.add_child(head)
     var brand := VBoxContainer.new()
-    brand.custom_minimum_size.x = 385
+    brand.custom_minimum_size.x = 365
     head.add_child(brand)
-    brand.add_child(_make_label("ПЕРИМЕТР / НУЛЕВАЯ ОРБИТА",26,AQUA))
-    brand.add_child(_make_label("КОСМИЧЕСКАЯ ЭКОНОМИКА · ALPHA 0.8",14,MUTED))
-    header_status = _make_label("",20)
+    var brand_title := _make_label("ПЕРИМЕТР / НУЛЕВАЯ ОРБИТА",21,AQUA)
+    brand_title.autowrap_mode = TextServer.AUTOWRAP_OFF
+    brand_title.clip_text = true
+    brand.add_child(brand_title)
+    brand.add_child(_make_label("КОСМИЧЕСКАЯ ЭКОНОМИКА · ALPHA 0.9",13,MUTED))
+    header_status = _make_label("",18)
+    header_status.autowrap_mode = TextServer.AUTOWRAP_OFF
+    header_status.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+    header_status.clip_text = true
+    header_status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     header_status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     head.add_child(header_status)
-    time_status = _make_label("",20,GOLD)
+    time_status = _make_label("",19,GOLD)
+    time_status.autowrap_mode = TextServer.AUTOWRAP_OFF
+    time_status.custom_minimum_size.x = 206
+    time_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+    time_status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     head.add_child(time_status)
-    head.add_child(_action_button("⏸" ,_toggle_time,true))
+    var pause_button := _action_button("⏸",_toggle_time,true)
+    pause_button.custom_minimum_size = Vector2(64,54)
+    head.add_child(pause_button)
 
-    resource_status = _make_label("",20,TEXT)
+    resource_status = _make_label("",19,TEXT)
+    resource_status.autowrap_mode = TextServer.AUTOWRAP_OFF
+    resource_status.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+    resource_status.clip_text = true
+    resource_status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     resource_status.custom_minimum_size = Vector2(0,42)
     root.add_child(resource_status)
 
