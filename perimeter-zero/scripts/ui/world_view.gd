@@ -148,7 +148,7 @@ func _draw_galaxy() -> void:
     for i in range(Db.SYSTEMS.size()):
         var s: Dictionary = Db.SYSTEMS[i]
         var pos := _star_position(i)
-        var discovered := i in game.discovered
+        var discovered: bool = i in game.discovered
         var star_color := Color("71d8e2") if discovered else Color("c18b61")
         if i == 4:
             star_color = Color("b3a2ed")
@@ -165,7 +165,7 @@ func _draw_galaxy() -> void:
         var ship_ref: Dictionary = game.ships[int(flight["ship_index"])]
         var transit: float = clampf(1.0-float(flight["eta"])/maxf(1.0,float(flight["duration"])),0.0,1.0)
         var position := origin_point.lerp(destination_point,transit)
-        draw_line(origin_point,destination_point,Color("529c8e").with_alpha(0.7),2.0,true)
+        draw_line(origin_point,destination_point,Color("529c8eb3"),2.0,true)
         draw_circle(position,8.0,Color("e7c68f"))
         if int(flight.get("escort_index",-1)) >= 0:
             draw_arc(position,14.0,0.0,TAU,24,Color("62d8d0"),2.5)
@@ -196,7 +196,7 @@ func _draw_research() -> void:
     for i in range(Db.TECHS.size()):
         var tech: Dictionary = Db.TECHS[i]
         var r := Rect2(Vector2(42+(i%columns)*cw,112+int(i/columns)*ch),Vector2(cw-12,ch-7))
-        var done := tech["id"] in game.researched
+        var done: bool = tech["id"] in game.researched
         var available := true
         for parent in tech["requires"]:
             if not parent in game.researched:
@@ -212,7 +212,7 @@ func _draw_market() -> void:
     var y := 140.0
     for id in Db.MARKETS.keys():
         var market_y := y
-        var price := game.market_price(id)
+        var price: int = int(game.market_price(id))
         var held := int(game.resources.get(id,0))
         var bar_width := minf(420.0,float(held)*4)
         _text(Vector2(x,market_y+11),"%s   %d кр/ед   •   запас %d" % [Db.label_for(id),price,held],20)
@@ -272,7 +272,7 @@ func _draw_colony() -> void:
             draw_rect(Rect2(rect.position+Vector2(0,grid_cell*0.34),Vector2(grid_cell-8,grid_cell*0.2)),Color("84949d"))
             draw_line(rect.position+Vector2(5,grid_cell*0.44),rect.position+Vector2(grid_cell-13,grid_cell*0.44),Color("e6bf6d"),1)
             continue
-        var connected := game.colony_connected(colony_index,x,y)
+        var connected: bool = bool(game.colony_connected(colony_index,x,y))
         var tint := Color("277879") if connected else Color("703d47")
         if id in ["quarry","ice_drill","silicon_pit","copper_pit"]:
             tint = Color("7c6b52") if connected else Color("703d47")
@@ -381,8 +381,8 @@ func _draw_campaign() -> void:
     for i in range(Db.OBJECTIVES.size()):
         var obj: Dictionary = Db.OBJECTIVES[i]
         var pos := Vector2(54+i*span,145)
-        var active := i == game.campaign_stage
-        var done := i < game.campaign_stage
+        var active: bool = i == game.campaign_stage
+        var done: bool = i < game.campaign_stage
         var col := Color("68d4c0") if done else (Color("ddb779") if active else Color("586f83"))
         draw_circle(pos+Vector2(span*0.48,62),28,col.darkened(0.55))
         draw_arc(pos+Vector2(span*0.48,62),29,0,TAU,48,col,3)
