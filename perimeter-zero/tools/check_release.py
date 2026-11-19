@@ -27,8 +27,8 @@ check(actual_tests == expected_tests, f'CI tests mismatch: {actual_tests ^ expec
 for test in expected_tests:
     check((ROOT/f'tests/{test}.gd').is_file(), f'missing {test}')
 export = (ROOT/'export_presets.cfg').read_text(encoding='utf-8')
-check('version/name="0.8.0"' in export, 'export version should be 0.8.0')
-check('version/code=8' in export, 'APK version code should be 8')
+check('version/name="0.9.0"' in export, 'export version should be 0.9.0')
+check('version/code=9' in export, 'APK version code should be 9')
 check('package/unique_name="com.frontier.perimeterzero"' in export, 'APK package ID changed unexpectedly')
 check('test_08' in (ROOT/'README.md').read_text(encoding='utf-8'), 'README missing test_08 instructions')
 check('"version":8' in (ROOT/'scripts/sim/game_state.gd').read_text(encoding='utf-8'), 'snapshot schema not v8')

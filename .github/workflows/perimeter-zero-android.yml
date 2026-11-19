@@ -1,4 +1,4 @@
-name: Perimeter Zero - Android APK (Alpha 0.8)
+name: Perimeter Zero - Android APK (Alpha 0.9)
 on:
   push:
     branches:
@@ -92,7 +92,7 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: PerimeterZero-Android-Alpha-0.8-debug
+          name: PerimeterZero-Android-Alpha-0.9-debug
           path: perimeter-zero/build/PerimeterZero-debug.apk
           if-no-files-found: error
 
@@ -100,6 +100,6 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: PerimeterZero-Alpha-0.8-failure-logs
+          name: PerimeterZero-Alpha-0.9-failure-logs
           path: perimeter-zero/build/logs/
           if-no-files-found: ignore

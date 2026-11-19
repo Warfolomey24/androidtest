@@ -77,13 +77,13 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: PerimeterZero-Android-Alpha-0.8-debug
+          name: PerimeterZero-Android-Alpha-0.9-debug
           path: build/PerimeterZero-debug.apk
           if-no-files-found: error
       - name: Save failure logs
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: PerimeterZero-Alpha-0.8-failure-logs
+          name: PerimeterZero-Alpha-0.9-failure-logs
           path: build/logs/
           if-no-files-found: ignore
