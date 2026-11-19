@@ -1,0 +1,103 @@
+name: Perimeter Zero - Android APK (Alpha 0.8)
+on:
+  push:
+    branches:
+      - feature/perimeter-zero-android-alpha-08
+    paths:
+      - 'perimeter-zero/**'
+      - '.github/workflows/perimeter-zero-android.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: perimeter-zero
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android dependencies
+        run: sdkmanager --install 'platform-tools' 'platforms;android-35' 'build-tools;35.0.1'
+
+      - name: Godot 4.7.2 and export templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.2
+          use-dotnet: false
+          include-templates: true
+
+      - name: Prepare debug signing
+        env:
+          KEY_B64: ${{ secrets.PZ_DEBUG_KEYSTORE_BASE64 }}
+        run: |
+          mkdir -p "$HOME/.android"
+          if [ -n "$KEY_B64" ]; then
+            printf '%s' "$KEY_B64" | base64 -d > "$HOME/.android/debug.keystore"
+          else
+            keytool -genkeypair -keystore "$HOME/.android/debug.keystore" -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+          fi
+          echo "GODOT_ANDROID_KEYSTORE_DEBUG_PATH=$HOME/.android/debug.keystore" >> "$GITHUB_ENV"
+          echo 'GODOT_ANDROID_KEYSTORE_DEBUG_USER=androiddebugkey' >> "$GITHUB_ENV"
+          echo 'GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD=android' >> "$GITHUB_ENV"
+
+      - name: Validate source and catalog
+        run: |
+          python3 tools/validate_static.py
+          python3 tools/verify_catalog.py
+          python3 tools/check_release.py
+
+      - name: Import project
+        run: |
+          mkdir -p build/logs
+          set -o pipefail
+          godot --headless --editor --path . --import 2>&1 | tee build/logs/import.log
+          if grep -Ei 'SCRIPT ERROR:|Parse Error:|Failed to load script' build/logs/import.log; then
+            exit 1
+          fi
+
+      - name: Configure Godot Android SDK
+        run: python3 tools/configure_ci_android.py
+
+      - name: Run game tests
+        run: |
+          set -euo pipefail
+          for test in test_sim test_expansion test_ui test_03 test_04 test_05 test_06 test_07 test_08; do
+            echo "== $test =="
+            godot --headless --path . --script "res://tests/$test.gd" 2>&1 | tee "build/logs/$test.log"
+          done
+
+      - name: Export Android debug APK
+        run: |
+          set -euo pipefail
+          godot --headless --path . --export-debug Android build/PerimeterZero-debug.apk 2>&1 | tee build/logs/export.log
+          python3 tools/verify_apk.py build/PerimeterZero-debug.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: PerimeterZero-Android-Alpha-0.8-debug
+          path: perimeter-zero/build/PerimeterZero-debug.apk
+          if-no-files-found: error
+
+      - name: Upload debug logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PerimeterZero-Alpha-0.8-failure-logs
+          path: perimeter-zero/build/logs/
+          if-no-files-found: ignore
