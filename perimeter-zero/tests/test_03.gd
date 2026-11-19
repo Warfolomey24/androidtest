@@ -47,10 +47,10 @@ func _initialize() -> void:
     story.cycle = 11
     story.step()
     expect(story.pending_story == "distress", "First campaign choice appears on cycle 12")
-    var locked_cycle := story.cycle
+    var locked_cycle: int = int(story.cycle)
     story.step()
     expect(story.cycle == locked_cycle, "World time stops until decision is made")
-    var previous_crew := story.crew
+    var previous_crew: int = int(story.crew)
     expect(story.resolve_story(0) == "", "Valid choice can be accepted")
     expect(story.crew == previous_crew + 8, "Refugee decision increases crew")
     expect(story.story_history.size() == 1, "Story decision persists in history")
