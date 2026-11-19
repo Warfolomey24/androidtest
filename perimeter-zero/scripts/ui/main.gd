@@ -321,7 +321,7 @@ func _sidebar_station() -> void:
         var str_cost := ""
         for resource_id in cost.keys():
             str_cost += "%s %d  " % [Db.label_for(resource_id),int(cost[resource_id])]
-        var title := ("● " if id == selected_building else "   ") + spec["name"]
+        var title: String = ("● " if id == selected_building else "   ") + str(spec["name"])
         sidebar.add_child(_action_button(title,_pick_building.bind(id),id == selected_building))
         _note(str_cost)
 
@@ -378,8 +378,8 @@ func _sidebar_research() -> void:
         for prerequisite in tech["requires"]:
             if not prerequisite in game.researched:
                 ready = false
-        var known := id in game.researched
-        var label := ("✓ " if known else "◈ ") + tech["name"] + "  [%d]" % tech["cost"]
+        var known: bool = id in game.researched
+        var label: String = ("✓ " if known else "◈ ") + str(tech["name"]) + "  [%d]" % int(tech["cost"])
         var b := _action_button(label,_research.bind(id),not known and ready)
         b.disabled = known or not ready
         sidebar.add_child(b)
@@ -427,7 +427,7 @@ func _toggle_time() -> void:
     _refresh()
 
 func _next_cycle() -> void:
-    var previous := game.cycle
+    var previous: int = int(game.cycle)
     game.step()
     _auto_save_if_due()
     _say("Продвинут один игровой цикл" if game.cycle > previous else "Время остановлено. Завершите бой или примите сюжетное решение")
